@@ -157,10 +157,13 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Controllers\AuthorController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\AuthorViewModel.cs" />
+    <Compile Include="Models\BookViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -200,10 +203,10 @@
     <Content Include="Views\Home\About.cshtml" />
     <Content Include="Views\Home\Contact.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
+    <Content Include="Views\Author\Details.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Models\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="fonts\glyphicons-halflings-regular.woff" />
@@ -221,14 +224,17 @@
     <Content Include="Scripts\jquery-1.10.2.min.map" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Tp3-AspNet.Data\Tp3-AspNet.Data.csproj">
-      <Project>{5dcd9943-1bd6-42ac-b99d-46bca7f8c93c}</Project>
-      <Name>Tp3-AspNet.Data</Name>
+    <ProjectReference Include="..\Tp3-AspNet.Api\Tp3-AspNet.Api.csproj">
+      <Project>{17e69fa5-6b1d-4cc6-82da-87731dd0a2b5}</Project>
+      <Name>Tp3-AspNet.Api</Name>
     </ProjectReference>
     <ProjectReference Include="..\Tp3-AspNet.Domain\Tp3-AspNet.Domain.csproj">
       <Project>{0e0c243e-5c0f-4d6b-9d03-607b9fec826e}</Project>
       <Name>Tp3-AspNet.Domain</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
