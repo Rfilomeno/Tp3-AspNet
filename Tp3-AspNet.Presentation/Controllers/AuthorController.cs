@@ -68,7 +68,7 @@ namespace Tp3_AspNet.Presentation.Controllers
 
         // POST: Author/Create
         [HttpPost]
-        public ActionResult Create(Author author)
+        public async Task<ActionResult> Create(Author author)
         {
             try
             {
@@ -77,8 +77,8 @@ namespace Tp3_AspNet.Presentation.Controllers
                     var mediaType = new MediaTypeWithQualityHeaderValue("application/json");
                     apiClient.BaseAddress = new Uri("http://localhost:53997/");
                     apiClient.DefaultRequestHeaders.Accept.Add(mediaType);
-                    apiClient.PostAsJsonAsync("/api/Authors", author);
-
+                    var resposta = await apiClient.PostAsJsonAsync("/api/Authors", author);
+                    
                     return RedirectToAction("Index");
 
                 }
@@ -116,7 +116,7 @@ namespace Tp3_AspNet.Presentation.Controllers
 
         // POST: Author/Edit/5
         [HttpPost]
-        public ActionResult Edit(int id, AuthorViewModel authorvm)
+        public async Task<ActionResult> Edit(int id, AuthorViewModel authorvm)
         {
 
             Author author = new Author()
@@ -134,9 +134,10 @@ namespace Tp3_AspNet.Presentation.Controllers
                     var mediaType = new MediaTypeWithQualityHeaderValue("application/json");
                     apiClient.BaseAddress = new Uri("http://localhost:53997/");
                     apiClient.DefaultRequestHeaders.Accept.Add(mediaType);
-                    apiClient.PutAsJsonAsync("/api/Authors/"+id, author);
+                    var resposta = await apiClient.PutAsJsonAsync("/api/Authors/"+id, author);
                     
                     return RedirectToAction("Index");
+
                 }
             }
             catch
@@ -148,18 +149,41 @@ namespace Tp3_AspNet.Presentation.Controllers
         // GET: Author/Delete/5
         public ActionResult Delete(int id)
         {
-            return View();
+            using (var apiClient = new HttpClient())
+            {
+                var mediaType = new MediaTypeWithQualityHeaderValue("application/json");
+                apiClient.BaseAddress = new Uri("http://localhost:53997/");
+                apiClient.DefaultRequestHeaders.Accept.Add(mediaType);
+                var response = apiClient.GetAsync("/api/Authors/" + id).Result;
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var JsonString = response.Content.ReadAsStringAsync().Result;
+                    var authorVM = JsonConvert.DeserializeObject<AuthorViewModel>(JsonString);
+                    return View(authorVM);
+
+                }
+                return View();
+
+            }
         }
 
         // POST: Author/Delete/5
         [HttpPost]
-        public ActionResult Delete(int id, FormCollection collection)
+        public async Task<ActionResult> Delete(int id, FormCollection collection)
         {
             try
             {
-                // TODO: Add delete logic here
+                using (var apiClient = new HttpClient())
+                {
+                    var mediaType = new MediaTypeWithQualityHeaderValue("application/json");
+                    apiClient.BaseAddress = new Uri("http://localhost:53997/");
+                    apiClient.DefaultRequestHeaders.Accept.Add(mediaType);
+                    var resposta = await apiClient.DeleteAsync("/api/Authors/" + id);
 
-                return RedirectToAction("Index");
+                    return RedirectToAction("Index");
+
+                }
             }
             catch
             {

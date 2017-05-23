@@ -1,6 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.Entity;
+using System.Data.Entity.Infrastructure;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Web.Http;
+using System.Web.Http.Description;
 using Tp3_AspNet.Data.Context;
 using Tp3_AspNet.Domain.Entities;
 
@@ -8,54 +15,105 @@ namespace Tp3_AspNet.Api.Controllers
 {
     public class AuthorsController : ApiController
     {
-        Context _context;
-        public AuthorsController()
-        {
-            _context = new Context();
-        }
+        private Context db = new Context();
+
         // GET: api/Authors
-        public IList<Author> Get()
+        public IList<Author> GetAuthors()
         {
-            return _context.Authors.ToList();
+            return db.Authors.ToList();
         }
-        
+
         // GET: api/Authors/5
-        public Author Get(int id)
+        [ResponseType(typeof(Author))]
+        public IHttpActionResult GetAuthor(int id)
         {
-            return _context.Authors.Where(a => a.AuthorId == id).FirstOrDefault();
-        }
-
-        // POST: api/Authors
-        public void Post(Author author)
-        {
-            if (author != null)
+            Author author = db.Authors.Find(id);
+            if (author == null)
             {
-                _context.Authors.Add(author);
-                _context.SaveChanges();
-
+                return NotFound();
             }
+
+            return Ok(author);
         }
 
         // PUT: api/Authors/5
-        public void Put(Author author)
+        [ResponseType(typeof(void))]
+        public IHttpActionResult PutAuthor(int id, Author author)
         {
-            var busca = _context.Authors.Where(a => a.AuthorId == author.AuthorId).FirstOrDefault();
-            if (author != null && busca != null)
+            if (!ModelState.IsValid)
             {
-                busca = author;
-                _context.SaveChanges();
+                return BadRequest(ModelState);
             }
+
+            if (id != author.AuthorId)
+            {
+                return BadRequest();
+            }
+
+            db.Entry(author).State = EntityState.Modified;
+
+            try
+            {
+                db.SaveChanges();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!AuthorExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return StatusCode(HttpStatusCode.NoContent);
+        }
+
+        // POST: api/Authors
+        [ResponseType(typeof(Author))]
+        public IHttpActionResult PostAuthor(Author author)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            db.Authors.Add(author);
+            db.SaveChanges();
+
+            return CreatedAtRoute("DefaultApi", new { id = author.AuthorId }, author);
         }
 
         // DELETE: api/Authors/5
-        public void Delete(int id)
+        [ResponseType(typeof(Author))]
+        public IHttpActionResult DeleteAuthor(int id)
         {
-            var busca = _context.Authors.Where(a => a.AuthorId == id).FirstOrDefault();
-            if (busca != null)
+            Author author = db.Authors.Find(id);
+            if (author == null)
             {
-                _context.Authors.Remove(busca);
-                _context.SaveChanges();
+                return NotFound();
             }
+
+            db.Authors.Remove(author);
+            db.SaveChanges();
+
+            return Ok(author);
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                db.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+
+        private bool AuthorExists(int id)
+        {
+            return db.Authors.Count(e => e.AuthorId == id) > 0;
         }
     }
 }

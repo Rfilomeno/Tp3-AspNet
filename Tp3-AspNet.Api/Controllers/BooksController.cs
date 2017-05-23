@@ -1,9 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.Entity;
+using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
+using System.Web.Http.Description;
 using Tp3_AspNet.Data.Context;
 using Tp3_AspNet.Domain.Entities;
 
@@ -11,55 +15,105 @@ namespace Tp3_AspNet.Api.Controllers
 {
     public class BooksController : ApiController
     {
-        Context _context;
-        public BooksController()
+        private Context db = new Context();
+
+        // GET: api/Books
+        public IList<Book> GetBooks()
         {
-            _context = new Context();
-        }
-        // GET api/Books
-        public IList<Book> Get()
-        {
-            return _context.Books.ToList();
+            return db.Books.ToList();
         }
 
-        // GET api/Books/5
-        public Book Get(int id)
+        // GET: api/Books/5
+        [ResponseType(typeof(Book))]
+        public IHttpActionResult GetBook(int id)
         {
-            return _context.Books.Where(b => b.BookId == id).FirstOrDefault();
-        }
-
-        // POST api/Books
-        public void Post(Book book)
-        {
-            if (book != null)
+            Book book = db.Books.Find(id);
+            if (book == null)
             {
-                _context.Books.Add(book);
-                _context.SaveChanges();
-
+                return NotFound();
             }
+
+            return Ok(book);
         }
 
-        // PUT api/Books/5
-        public void Put(int id, Book book)
+        // PUT: api/Books/5
+        [ResponseType(typeof(void))]
+        public IHttpActionResult PutBook(int id, Book book)
         {
-            var busca = _context.Books.Where(b => b.BookId == id).FirstOrDefault();
-            if (book != null && busca != null)
+            if (!ModelState.IsValid)
             {
-                busca = book;
-                _context.SaveChanges();
+                return BadRequest(ModelState);
             }
+
+            if (id != book.BookId)
+            {
+                return BadRequest();
+            }
+
+            db.Entry(book).State = EntityState.Modified;
+
+            try
+            {
+                db.SaveChanges();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!BookExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return StatusCode(HttpStatusCode.NoContent);
         }
 
-        // DELETE api/Books/5
-        public void Delete(int id)
+        // POST: api/Books
+        [ResponseType(typeof(Book))]
+        public IHttpActionResult PostBook(Book book)
         {
-            var busca = _context.Books.Where(b => b.BookId == id).FirstOrDefault();
-            if (busca != null)
+            if (!ModelState.IsValid)
             {
-                _context.Books.Remove(busca);
-                _context.SaveChanges();
-
+                return BadRequest(ModelState);
             }
+
+            db.Books.Add(book);
+            db.SaveChanges();
+
+            return CreatedAtRoute("DefaultApi", new { id = book.BookId }, book);
+        }
+
+        // DELETE: api/Books/5
+        [ResponseType(typeof(Book))]
+        public IHttpActionResult DeleteBook(int id)
+        {
+            Book book = db.Books.Find(id);
+            if (book == null)
+            {
+                return NotFound();
+            }
+
+            db.Books.Remove(book);
+            db.SaveChanges();
+
+            return Ok(book);
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                db.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+
+        private bool BookExists(int id)
+        {
+            return db.Books.Count(e => e.BookId == id) > 0;
         }
     }
 }

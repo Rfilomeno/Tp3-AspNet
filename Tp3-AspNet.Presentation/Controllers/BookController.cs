@@ -4,8 +4,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+using Tp3_AspNet.Domain.Entities;
 using Tp3_AspNet.Presentation.Models;
 
 namespace Tp3_AspNet.Presentation.Controllers
@@ -63,13 +65,20 @@ namespace Tp3_AspNet.Presentation.Controllers
 
         // POST: Book/Create
         [HttpPost]
-        public ActionResult Create(FormCollection collection)
+        public async Task<ActionResult> Create(Book book)
         {
             try
             {
-                // TODO: Add insert logic here
+                using (var apiClient = new HttpClient())
+                {
+                    var mediaType = new MediaTypeWithQualityHeaderValue("application/json");
+                    apiClient.BaseAddress = new Uri("http://localhost:53997/");
+                    apiClient.DefaultRequestHeaders.Accept.Add(mediaType);
+                    var resposta = await apiClient.PostAsJsonAsync("/api/Books", book);
 
-                return RedirectToAction("Index");
+                    return RedirectToAction("Index");
+
+                }
             }
             catch
             {
@@ -80,18 +89,40 @@ namespace Tp3_AspNet.Presentation.Controllers
         // GET: Book/Edit/5
         public ActionResult Edit(int id)
         {
-            return View();
+            using (var apiClient = new HttpClient())
+            {
+                var mediaType = new MediaTypeWithQualityHeaderValue("application/json");
+                apiClient.BaseAddress = new Uri("http://localhost:53997/");
+                apiClient.DefaultRequestHeaders.Accept.Add(mediaType);
+                var response = apiClient.GetAsync("/api/Books/" + id).Result;
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var JsonString = response.Content.ReadAsStringAsync().Result;
+                    var BookVM = JsonConvert.DeserializeObject<BookViewModel>(JsonString);
+                    return View(BookVM);
+
+                }
+                return View();
+            }
         }
 
         // POST: Book/Edit/5
         [HttpPost]
-        public ActionResult Edit(int id, FormCollection collection)
+        public async Task<ActionResult> Edit(int id, BookViewModel BookVM)
         {
             try
             {
-                // TODO: Add update logic here
+                using (var apiClient = new HttpClient())
+                {
+                    var mediaType = new MediaTypeWithQualityHeaderValue("application/json");
+                    apiClient.BaseAddress = new Uri("http://localhost:53997/");
+                    apiClient.DefaultRequestHeaders.Accept.Add(mediaType);
+                    var resposta = await apiClient.PutAsJsonAsync("/api/Books/" + id, BookVM);
 
-                return RedirectToAction("Index");
+                    return RedirectToAction("Index");
+
+                }
             }
             catch
             {
@@ -102,18 +133,40 @@ namespace Tp3_AspNet.Presentation.Controllers
         // GET: Book/Delete/5
         public ActionResult Delete(int id)
         {
-            return View();
+            using (var apiClient = new HttpClient())
+            {
+                var mediaType = new MediaTypeWithQualityHeaderValue("application/json");
+                apiClient.BaseAddress = new Uri("http://localhost:53997/");
+                apiClient.DefaultRequestHeaders.Accept.Add(mediaType);
+                var response = apiClient.GetAsync("/api/Books/" + id).Result;
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var JsonString = response.Content.ReadAsStringAsync().Result;
+                    var BookVM = JsonConvert.DeserializeObject<BookViewModel>(JsonString);
+                    return View(BookVM);
+
+                }
+                return View();
+            }
         }
 
         // POST: Book/Delete/5
         [HttpPost]
-        public ActionResult Delete(int id, FormCollection collection)
+        public async Task<ActionResult> Delete(int id, FormCollection collection)
         {
             try
             {
-                // TODO: Add delete logic here
+                using (var apiClient = new HttpClient())
+                {
+                    var mediaType = new MediaTypeWithQualityHeaderValue("application/json");
+                    apiClient.BaseAddress = new Uri("http://localhost:53997/");
+                    apiClient.DefaultRequestHeaders.Accept.Add(mediaType);
+                    var resposta = await apiClient.DeleteAsync("/api/Books/" + id);
 
-                return RedirectToAction("Index");
+                    return RedirectToAction("Index");
+
+                }
             }
             catch
             {
