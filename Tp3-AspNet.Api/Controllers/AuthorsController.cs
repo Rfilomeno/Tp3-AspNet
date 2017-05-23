@@ -14,9 +14,9 @@ namespace Tp3_AspNet.Api.Controllers
             _context = new Context();
         }
         // GET: api/Authors
-        public IEnumerable<Author> Get()
+        public IList<Author> Get()
         {
-            return _context.Authors;
+            return _context.Authors.ToList();
         }
         
         // GET: api/Authors/5
@@ -37,9 +37,9 @@ namespace Tp3_AspNet.Api.Controllers
         }
 
         // PUT: api/Authors/5
-        public void Put(int id, Author author)
+        public void Put(Author author)
         {
-            var busca = _context.Authors.Where(a => a.AuthorId == id).FirstOrDefault();
+            var busca = _context.Authors.Where(a => a.AuthorId == author.AuthorId).FirstOrDefault();
             if (author != null && busca != null)
             {
                 busca = author;

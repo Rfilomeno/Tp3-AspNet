@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,15 +23,18 @@ namespace Tp3_AspNet.Presentation.Controllers
                 var mediaType = new MediaTypeWithQualityHeaderValue("application/json");
                 apiClient.BaseAddress = new Uri("http://localhost:53997/");
                 apiClient.DefaultRequestHeaders.Accept.Add(mediaType);
-                var authors = apiClient.GetAsync("/api/Authors").Result;
-                var lista = new List<AuthorViewModel>();
-                if (authors.IsSuccessStatusCode)
+                var response = apiClient.GetAsync("/api/Authors").Result;
+                
+                if (response.IsSuccessStatusCode)
                 {
-                    
-                }
+                    var JsonString = response.Content.ReadAsStringAsync().Result;
+                    var authorsVM = JsonConvert.DeserializeObject<List<AuthorViewModel>>(JsonString);
+                    return View(authorsVM);
 
+                }
+                return View();
             }
-            return View();
+            
         }
 
         // GET: Author/Details/5
@@ -42,13 +46,15 @@ namespace Tp3_AspNet.Presentation.Controllers
                 apiClient.BaseAddress = new Uri("http://localhost:53997/");
                 apiClient.DefaultRequestHeaders.Accept.Add(mediaType);
                 var response = apiClient.GetAsync("/api/Authors/"+id).Result;
-                var autor = response.Content.ReadAsStringAsync().Result;
-                //to do
 
-                AuthorViewModel vm = new AuthorViewModel();
-                
+                if (response.IsSuccessStatusCode)
+                {
+                    var JsonString = response.Content.ReadAsStringAsync().Result;
+                    var authorVM = JsonConvert.DeserializeObject<AuthorViewModel>(JsonString);
+                    return View(authorVM);
 
-               return View(response.Content.ReadAsStringAsync());
+                }
+                return View();
 
             }
             
@@ -62,13 +68,22 @@ namespace Tp3_AspNet.Presentation.Controllers
 
         // POST: Author/Create
         [HttpPost]
-        public ActionResult Create(FormCollection collection)
+        public ActionResult Create(Author author)
         {
             try
             {
-                // TODO: Add insert logic here
+                using (var apiClient = new HttpClient())
+                {
+                    var mediaType = new MediaTypeWithQualityHeaderValue("application/json");
+                    apiClient.BaseAddress = new Uri("http://localhost:53997/");
+                    apiClient.DefaultRequestHeaders.Accept.Add(mediaType);
+                    apiClient.PostAsJsonAsync("/api/Authors", author);
 
-                return RedirectToAction("Index");
+                    return RedirectToAction("Index");
+
+                }
+
+                
             }
             catch
             {
@@ -79,18 +94,50 @@ namespace Tp3_AspNet.Presentation.Controllers
         // GET: Author/Edit/5
         public ActionResult Edit(int id)
         {
-            return View();
+            using (var apiClient = new HttpClient())
+            {
+                var mediaType = new MediaTypeWithQualityHeaderValue("application/json");
+                apiClient.BaseAddress = new Uri("http://localhost:53997/");
+                apiClient.DefaultRequestHeaders.Accept.Add(mediaType);
+                var response = apiClient.GetAsync("/api/Authors/" + id).Result;
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var JsonString = response.Content.ReadAsStringAsync().Result;
+                    var authorVM = JsonConvert.DeserializeObject<AuthorViewModel>(JsonString);
+                    return View(authorVM);
+
+                }
+                return View();
+
+            }
+            
         }
 
         // POST: Author/Edit/5
         [HttpPost]
-        public ActionResult Edit(int id, FormCollection collection)
+        public ActionResult Edit(int id, AuthorViewModel authorvm)
         {
+
+            Author author = new Author()
+            {
+                AuthorId = authorvm.AuthorId,
+                FirstName = authorvm.FirstName,
+                LastName = authorvm.LastName,
+                Books = authorvm.Books
+            };
+
             try
             {
-                // TODO: Add update logic here
-
-                return RedirectToAction("Index");
+                using (var apiClient = new HttpClient())
+                {
+                    var mediaType = new MediaTypeWithQualityHeaderValue("application/json");
+                    apiClient.BaseAddress = new Uri("http://localhost:53997/");
+                    apiClient.DefaultRequestHeaders.Accept.Add(mediaType);
+                    apiClient.PutAsJsonAsync("/api/Authors/"+id, author);
+                    
+                    return RedirectToAction("Index");
+                }
             }
             catch
             {

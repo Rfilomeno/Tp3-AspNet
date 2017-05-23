@@ -17,9 +17,9 @@ namespace Tp3_AspNet.Api.Controllers
             _context = new Context();
         }
         // GET api/Books
-        public IEnumerable<Book> Get()
+        public IList<Book> Get()
         {
-            return _context.Books;
+            return _context.Books.ToList();
         }
 
         // GET api/Books/5
