@@ -20,8 +20,36 @@ namespace Tp3_AspNet.Api.Controllers
         // GET: api/Authors
         public IList<Author> GetAuthors()
         {
-            return db.Authors.ToList();
+            IList<Author> Authors = new List<Author>();
+
+            foreach (var author in db.Authors.ToList())
+            {
+                var localAuthor = new Author()
+                {
+                    AuthorId = author.AuthorId,
+                    FirstName = author.FirstName,
+                    LastName = author.LastName,
+                    Books = new List<Book>()
+                };
+
+                foreach (var book in author.Books)
+                {
+                    localAuthor.Books.Add(new Book()
+                    {
+                        BookId = book.BookId,
+                        Titulo = book.Titulo,
+                        Isbn = book.Isbn
+                    });
+                }
+
+                Authors.Add(localAuthor);
+            }
+
+            return Authors;
+
         }
+                    
+    
 
         // GET: api/Authors/5
         [ResponseType(typeof(Author))]

@@ -24,11 +24,12 @@ namespace Tp3_AspNet.Presentation.Controllers
                 apiClient.BaseAddress = new Uri("http://localhost:53997/");
                 apiClient.DefaultRequestHeaders.Accept.Add(mediaType);
                 var response = apiClient.GetAsync("/api/Authors").Result;
-                
+
                 if (response.IsSuccessStatusCode)
                 {
                     var JsonString = response.Content.ReadAsStringAsync().Result;
                     var authorsVM = JsonConvert.DeserializeObject<List<AuthorViewModel>>(JsonString);
+
                     return View(authorsVM);
 
                 }
