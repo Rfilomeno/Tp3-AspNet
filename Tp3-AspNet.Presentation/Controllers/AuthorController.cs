@@ -101,7 +101,13 @@ namespace Tp3_AspNet.Presentation.Controllers
                 apiClient.BaseAddress = new Uri("http://localhost:53997/");
                 apiClient.DefaultRequestHeaders.Accept.Add(mediaType);
                 var response = apiClient.GetAsync("/api/Authors/" + id).Result;
-
+                var response2 = apiClient.GetAsync("/api/Books/").Result;
+                if (response2.IsSuccessStatusCode)
+                {
+                    var JsonString = response.Content.ReadAsStringAsync().Result;
+                    var BooksVM = JsonConvert.DeserializeObject<List<BookViewModel>>(JsonString);
+                    
+                }
                 if (response.IsSuccessStatusCode)
                 {
                     var JsonString = response.Content.ReadAsStringAsync().Result;

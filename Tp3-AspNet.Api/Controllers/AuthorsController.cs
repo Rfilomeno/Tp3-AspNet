@@ -49,19 +49,36 @@ namespace Tp3_AspNet.Api.Controllers
 
         }
                     
-    
 
         // GET: api/Authors/5
         [ResponseType(typeof(Author))]
         public IHttpActionResult GetAuthor(int id)
         {
-            Author author = db.Authors.Find(id);
-            if (author == null)
+            var query = db.Authors.Find(id);
+            if (query == null)
             {
                 return NotFound();
             }
 
-            return Ok(author);
+            var localAuthor = new Author()
+            {
+                AuthorId = query.AuthorId,
+                FirstName = query.FirstName,
+                LastName = query.LastName,
+                Books = new List<Book>()
+            };
+
+            foreach (var book in query.Books)
+            {
+                localAuthor.Books.Add(new Book()
+                {
+                    BookId = book.BookId,
+                    Titulo = book.Titulo,
+                    Isbn = book.Isbn
+                });
+            }
+            
+            return Ok(localAuthor);
         }
 
         // PUT: api/Authors/5

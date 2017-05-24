@@ -20,20 +20,64 @@ namespace Tp3_AspNet.Api.Controllers
         // GET: api/Books
         public IList<Book> GetBooks()
         {
-            return db.Books.ToList();
+            IList<Book> Books = new List<Book>();
+
+            foreach (var books in db.Books.ToList())
+            {
+                var localBook = new Book()
+                {
+                    BookId = books.BookId,
+                    Titulo = books.Titulo,
+                    Isbn = books.Isbn,
+                    Authors = new List<Author>()
+                };
+
+                foreach (var author in books.Authors)
+                {
+                    localBook.Authors.Add(new Author()
+                    {
+                        AuthorId = author.AuthorId,
+                        FirstName = author.FirstName,
+                        LastName = author.LastName
+                    });
+                }
+
+                Books.Add(localBook);
+            }
+
+            return Books;
+            
         }
 
         // GET: api/Books/5
         [ResponseType(typeof(Book))]
         public IHttpActionResult GetBook(int id)
         {
-            Book book = db.Books.Find(id);
-            if (book == null)
+            var query = db.Books.Find(id);
+            if (query == null)
             {
                 return NotFound();
             }
 
-            return Ok(book);
+            var localBook = new Book()
+            {
+                BookId = query.BookId,
+                Titulo = query.Titulo,
+                Isbn = query.Isbn,
+                Authors = new List<Author>()
+            };
+
+            foreach (var author in query.Authors)
+            {
+                localBook.Authors.Add(new Author()
+                {
+                    AuthorId = author.AuthorId,
+                    FirstName = author.FirstName,
+                    LastName = author.LastName
+                });
+            }
+
+            return Ok(localBook);
         }
 
         // PUT: api/Books/5
