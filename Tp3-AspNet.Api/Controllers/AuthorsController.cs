@@ -13,6 +13,7 @@ using Tp3_AspNet.Domain.Entities;
 
 namespace Tp3_AspNet.Api.Controllers
 {
+    [RoutePrefix("api/Authors")]
     public class AuthorsController : ApiController
     {
         private Context db = new Context();
@@ -47,8 +48,7 @@ namespace Tp3_AspNet.Api.Controllers
 
             return Authors;
 
-        }
-                    
+        }                    
 
         // GET: api/Authors/5
         [ResponseType(typeof(Author))]
@@ -146,6 +146,19 @@ namespace Tp3_AspNet.Api.Controllers
 
             return Ok(author);
         }
+        [HttpGet]
+        [Route("FazRelacionamento")]
+        public void FazRelacionamento(int authorId, int bookId)
+        {
+            var author = db.Authors.Where(a => a.AuthorId == authorId).FirstOrDefault();
+            var book = db.Books.Where(b => b.BookId == bookId).FirstOrDefault();
+
+            author.Books.Add(book);
+            book.Authors.Add(author);
+            db.SaveChanges();
+
+        }
+
 
         protected override void Dispose(bool disposing)
         {

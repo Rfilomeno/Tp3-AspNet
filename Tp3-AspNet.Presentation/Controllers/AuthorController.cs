@@ -101,13 +101,7 @@ namespace Tp3_AspNet.Presentation.Controllers
                 apiClient.BaseAddress = new Uri("http://localhost:53997/");
                 apiClient.DefaultRequestHeaders.Accept.Add(mediaType);
                 var response = apiClient.GetAsync("/api/Authors/" + id).Result;
-                //var response2 = apiClient.GetAsync("/api/Books/").Result;
-                //if (response2.IsSuccessStatusCode)
-                //{
-                //    var JsonString = response.Content.ReadAsStringAsync().Result;
-                //    var BooksVM = JsonConvert.DeserializeObject<List<BookViewModel>>(JsonString);
-                    
-                //}
+                
                 if (response.IsSuccessStatusCode)
                 {
                     var JsonString = response.Content.ReadAsStringAsync().Result;
@@ -200,32 +194,8 @@ namespace Tp3_AspNet.Presentation.Controllers
 
         public ActionResult AddBookToAuthor(int id)
         {
-            using (var apiClient = new HttpClient())
-            {
-                var mediaType = new MediaTypeWithQualityHeaderValue("application/json");
-                apiClient.BaseAddress = new Uri("http://localhost:53997/");
-                apiClient.DefaultRequestHeaders.Accept.Add(mediaType);
-                var response = apiClient.GetAsync("/api/Authors/" + id).Result;
-
-                if (response.IsSuccessStatusCode)
-                {
-                    var JsonString = response.Content.ReadAsStringAsync().Result;
-                    var Json = JsonConvert.DeserializeObject<AuthorViewModel>(JsonString);
-                    var authorVM = new AuthorViewModel()
-                    {
-                        AuthorId = Json.AuthorId,
-                        FirstName = Json.FirstName,
-                        LastName = Json.LastName,
-                        Books = Json.Books
-                    };
-
-                    TempData["author"] = authorVM;
-                }
-                
-
-            }
             
-            
+            TempData["author"] = id;     
             TempData.Keep();
             using (var apiClient = new HttpClient())
             {
@@ -250,60 +220,29 @@ namespace Tp3_AspNet.Presentation.Controllers
 
         public async Task<ActionResult> AddBook(int bookid)
         {
-            var book = new Book();
-            using (var apiClient = new HttpClient())
-            {
-                var mediaType = new MediaTypeWithQualityHeaderValue("application/json");
-                apiClient.BaseAddress = new Uri("http://localhost:53997/");
-                apiClient.DefaultRequestHeaders.Accept.Add(mediaType);
-                var response = apiClient.GetAsync("/api/Books/" + bookid).Result;
+            var authorid = (int)TempData["author"];
 
-                if (response.IsSuccessStatusCode)
-                {
-                    var JsonString = response.Content.ReadAsStringAsync().Result;
-                    var BookVM = JsonConvert.DeserializeObject<BookViewModel>(JsonString);
-                    book.BookId = BookVM.BookId;
-                    book.Isbn = BookVM.Isbn;
-                    book.Titulo = BookVM.Titulo;
-                    book.Authors = BookVM.Authors;
-
-                }
-
-
-            }
-
-
-            var authorvm = (AuthorViewModel)TempData["author"];
-            var author = new Author()
-            {
-                AuthorId = authorvm.AuthorId,
-                FirstName = authorvm.FirstName,
-                LastName = authorvm.LastName,
-                Books = authorvm.Books
-            };
-                
-                           
-                
-                
-            author.Books.Add(book);
-
-            try
+      try
             {
                 using (var apiClient = new HttpClient())
                 {
                     var mediaType = new MediaTypeWithQualityHeaderValue("application/json");
                     apiClient.BaseAddress = new Uri("http://localhost:53997/");
                     apiClient.DefaultRequestHeaders.Accept.Add(mediaType);
-                    var resposta = await apiClient.PutAsJsonAsync("/api/Authors/" + author.AuthorId, author);
+                    var uri = "/api/Authors/FazRelacionamento?authorId=" + authorid + "&bookId=" + bookid;
+
+                    var resposta = await apiClient.GetAsync(uri);
 
                     return RedirectToAction("Index");
-
                 }
+
+
             }
             catch
             {
                 return View();
             }
+            
         }
     }
 }
