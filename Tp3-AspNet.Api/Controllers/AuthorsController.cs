@@ -94,7 +94,7 @@ namespace Tp3_AspNet.Api.Controllers
             {
                 return BadRequest();
             }
-
+            
             db.Entry(author).State = EntityState.Modified;
 
             try
