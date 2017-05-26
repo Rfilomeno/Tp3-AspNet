@@ -173,5 +173,144 @@ namespace Tp3_AspNet.Presentation.Controllers
                 return View();
             }
         }
+
+        public ActionResult AddAuthorToBook(int id)
+        {
+            TempData["bookid"] = id;
+            TempData.Keep();
+            using (var apiClient = new HttpClient())
+            {
+
+                var mediaType = new MediaTypeWithQualityHeaderValue("application/json");
+                apiClient.BaseAddress = new Uri("http://localhost:53997/");
+                apiClient.DefaultRequestHeaders.Accept.Add(mediaType);
+                var response = apiClient.GetAsync("/api/Authors").Result;
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var JsonString = response.Content.ReadAsStringAsync().Result;
+                    var AuthorVM = JsonConvert.DeserializeObject<List<AuthorViewModel>>(JsonString);
+                    TempData.Keep();
+                    return View(AuthorVM);
+
+                }
+                TempData.Keep();
+                return View();
+            }
+        }
+        public async Task<ActionResult> AddAuthor(int id)
+        {
+            var bookid = (int)TempData["bookid"];
+
+            try
+            {
+                using (var apiClient = new HttpClient())
+                {
+                    var mediaType = new MediaTypeWithQualityHeaderValue("application/json");
+                    apiClient.BaseAddress = new Uri("http://localhost:53997/");
+                    apiClient.DefaultRequestHeaders.Accept.Add(mediaType);
+                    var uri = "/api/Authors/FazRelacionamento?authorId=" + id + "&bookId=" + bookid;
+
+                    var resposta = await apiClient.GetAsync(uri);
+
+                    return RedirectToAction("Index");
+                }
+
+
+            }
+            catch
+            {
+                return View();
+            }
+
+        }
+
+        public ActionResult RemoveAuthorToBook(int id)
+        {
+            TempData["bookid"] = id;
+            TempData.Keep();
+            BookViewModel BookVM = new BookViewModel();
+
+            using (var apiClient = new HttpClient())
+            {
+                var mediaType = new MediaTypeWithQualityHeaderValue("application/json");
+                apiClient.BaseAddress = new Uri("http://localhost:53997/");
+                apiClient.DefaultRequestHeaders.Accept.Add(mediaType);
+                var response = apiClient.GetAsync("/api/Books/" + id).Result;
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var JsonString = response.Content.ReadAsStringAsync().Result;
+                    BookVM = JsonConvert.DeserializeObject<BookViewModel>(JsonString);
+                    
+                }
+                
+
+            }
+
+
+
+            using (var apiClient = new HttpClient())
+            {
+
+                var mediaType = new MediaTypeWithQualityHeaderValue("application/json");
+                apiClient.BaseAddress = new Uri("http://localhost:53997/");
+                apiClient.DefaultRequestHeaders.Accept.Add(mediaType);
+                var response = apiClient.GetAsync("/api/Authors").Result;
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var JsonString = response.Content.ReadAsStringAsync().Result;
+                    var AuthorVM = JsonConvert.DeserializeObject<List<AuthorViewModel>>(JsonString);
+                    TempData.Keep();
+
+                    List<AuthorViewModel> AuthorVM2 = new List<AuthorViewModel>();
+                    foreach (var item in AuthorVM)
+                    {
+                        foreach (var item2 in BookVM.Authors)
+                        {
+                            if (item2.AuthorId == item.AuthorId)
+                            {
+                                AuthorVM2.Add(item);
+                            }
+
+                        }
+
+                    }
+                    
+                    return View(AuthorVM2);
+
+                }
+                
+                TempData.Keep();
+                return View();
+            }
+        }
+        public async Task<ActionResult> RemoveAuthor(int id)
+        {
+            var bookid = (int)TempData["bookid"];
+
+            try
+            {
+                using (var apiClient = new HttpClient())
+                {
+                    var mediaType = new MediaTypeWithQualityHeaderValue("application/json");
+                    apiClient.BaseAddress = new Uri("http://localhost:53997/");
+                    apiClient.DefaultRequestHeaders.Accept.Add(mediaType);
+                    var uri = "/api/Authors/DesfazRelacionamento?authorId=" + id + "&bookId=" + bookid;
+
+                    var resposta = await apiClient.GetAsync(uri);
+
+                    return RedirectToAction("Index");
+                }
+
+
+            }
+            catch
+            {
+                return View();
+            }
+
+        }
     }
 }

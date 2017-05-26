@@ -159,6 +159,19 @@ namespace Tp3_AspNet.Api.Controllers
 
         }
 
+        [HttpGet]
+        [Route("DesfazRelacionamento")]
+        public void DesfazRelacionamento(int authorId, int bookId)
+        {
+            var author = db.Authors.Where(a => a.AuthorId == authorId).FirstOrDefault();
+            var book = db.Books.Where(b => b.BookId == bookId).FirstOrDefault();
+
+            author.Books.Remove(book);
+            book.Authors.Remove(author);
+            db.SaveChanges();
+
+        }
+
 
         protected override void Dispose(bool disposing)
         {

@@ -212,6 +212,8 @@
     <Content Include="Views\Book\Edit.cshtml" />
     <Content Include="Views\Book\Delete.cshtml" />
     <Content Include="Views\Author\AddBookToAuthor.cshtml" />
+    <Content Include="Views\Book\AddAuthorToBook.cshtml" />
+    <Content Include="Views\Book\RemoveAuthorToBook.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

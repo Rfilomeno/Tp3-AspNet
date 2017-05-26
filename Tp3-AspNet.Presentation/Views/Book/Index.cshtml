@@ -20,6 +20,9 @@
         <th>
             @Html.DisplayNameFor(model => model.Isbn)
         </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Authors)
+        </th>
         <th></th>
     </tr>
 
@@ -35,9 +38,22 @@
             @Html.DisplayFor(modelItem => item.Isbn)
         </td>
         <td>
+            @foreach (var item2 in item.Authors)
+            {
+                if (item2 != null)
+                {
+                    @Html.DisplayFor(modelItem => item2.FirstName)<br />
+                }
+            }
+
+        </td>
+        <td>
             @Html.ActionLink("Edit", "Edit", new { id=item.BookId }) |
             @Html.ActionLink("Details", "Details", new { id = item.BookId }) |
-            @Html.ActionLink("Delete", "Delete", new { id = item.BookId })
+            @Html.ActionLink("Delete", "Delete", new { id = item.BookId }) |
+            @Html.ActionLink("Add Author", "AddAuthorToBook", new { id = item.BookId }) |
+            @Html.ActionLink("Remove Author", "RemoveAuthorToBook", new { id = item.BookId }) |
+
         </td>
     </tr>
 }
